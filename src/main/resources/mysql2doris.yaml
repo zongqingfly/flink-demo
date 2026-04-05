@@ -1,0 +1,25 @@
+source:
+  type: mysql
+  name: "MySQL Source"
+  hostname: "host.docker.internal"       # 源MySQL地址
+  port: 3306
+  username: "zxhacker"            # 需有读取Binlog权限
+  password: "18813015780"
+  tables: "demo1.user, demo1.user_copy1"  # 要同步的表，支持正则
+  scan.startup.mode: "initial"     # 初次启动模式，initial会同步全量+增量
+
+# ！注意，CDC 3.x 版本的 Sink 端目前不直接支持 MySQL
+sink:
+  type: doris
+  name: "Doris Sink"
+  fenodes: host.docker.internal:18030
+  benodes: host.docker.internal:18030
+  username: "root"
+  password: ""
+  table.create.properties.replication_num: 1
+
+# 管道全局配置
+pipeline:
+  name: "Sync MySQL to ES Pipeline"
+  local-time-zone: "Asia/Shanghai"  # 本地时区
+  parallelism: 2                   # 并行度
