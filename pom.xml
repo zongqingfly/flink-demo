@@ -11,10 +11,10 @@
     <packaging>jar</packaging>
 
     <name>Flink CDC Demo</name>
-    <description>Flink CDC Examples with Java 17 and Flink 1.20.3</description>
+    <description>Flink CDC Examples with Java 11 and Flink 1.20.3</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>11</java.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <flink.version>1.20.3</flink.version>
