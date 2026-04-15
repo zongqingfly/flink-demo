@@ -7,35 +7,34 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class WordCountParallelismDemo {
+public class ChainingDemo {
     public static void main(String[] args) throws Exception {
         // 1. 创建本地环境，webui访问： http://localhost:8081
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
-        env.setParallelism(2); // 全局指定并行度
+        env.setParallelism(1);
+        env.disableOperatorChaining(); // attention 全局禁用算子链
 
         // 2. 从socket流中读取数据
         DataStreamSource<String> source = env.socketTextStream("localhost", 9999);
 
-        source.flatMap((FlatMapFunction<String, Tuple2<String, Integer>>) (in, out) -> {
+        // 3.1 切分
+        source.flatMap((FlatMapFunction<String, String>) (in, out) -> {
                     String[] words = in.split("\\s+");
                     for (String word : words) {
-                        // 3.2 转换
-                        Tuple2<String, Integer> wordCountOne = Tuple2.of(word, 1);
-                        out.collect(wordCountOne);
+                        out.collect(word);
                     }
                 })
-                .returns(Types.TUPLE(Types.STRING, Types.INT))
-                .setParallelism(3) // attention 指定算子并行度，优先级高于全局指定的并行度
-                .keyBy(tuple -> tuple.f0)// 3.3
+                .startNewChain() // attention 从此算子开始新链，指定 flatMap 与前面断开。
+                .returns(Types.STRING) // attention1 必须指定返回类型
+                .map(word -> Tuple2.of(word, 1))// 3.2 转换
+//                .disableChaining() // attention 禁止算子链
+                .returns(Types.TUPLE(Types.STRING, Types.INT))// attention[1] 必须指定返回类型
+                .keyBy(tuple -> tuple.f0)// 3.3 分组
                 .sum(1)// 3.4 聚合
                 .print();
 
         // 5. 执行
         env.execute();
-
-        /*
-        attention 算子优先级: 算子 > 代码env 全局设定 > 提交jar包指定参数 > flink-conf.yaml配置
-         */
 
         env.close();
     }

@@ -1,5 +1,6 @@
-package com.fly.flinkcdc;
+package com.fly.flinkcdc.mysql;
 
+import com.fly.common.EnvProperties;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.cdc.connectors.mysql.table.StartupOptions;
@@ -24,10 +25,10 @@ public class MysqlSourceDemo {
 
         // 3. 添加 source
         MySqlSource<String> source = MySqlSource.<String>builder()
-                .hostname("host.docker.internal")
-                .port(3306)
-                .username("zxhacker")
-                .password("18813015780")
+                .hostname(EnvProperties.ip())
+                .port(Integer.parseInt(EnvProperties.mysqlPort()))
+                .username(EnvProperties.mysqlUser())
+                .password(EnvProperties.mysqlPassword())
                 .databaseList("demo1")
                 .tableList("demo1.user")
                 .startupOptions(StartupOptions.initial())

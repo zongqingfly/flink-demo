@@ -1,5 +1,6 @@
-package com.fly.flinkcdc;
+package com.fly.flinkcdc.mysql;
 
+import com.fly.common.EnvProperties;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
@@ -20,13 +21,19 @@ public class MysqlSourceSQLDemo {
                 ") WITH (\n" +
                 "    'connector' = 'mysql-cdc',\n" +
                 "    'server-time-zone' = 'Asia/Shanghai',\n" +
-                "    'hostname' = 'host.docker.internal',\n" +
-                "    'port' = '13306',\n" +
-                "    'username' = 'zxhacker',\n" +
-                "    'password' = '18813015780',\n" +
+                "    'hostname' = '${ip}',\n" +
+                "    'port' = '${port}',\n" +
+                "    'username' = '${username}',\n" +
+                "    'password' = '${password}',\n" +
                 "    'database-name' = 'demo1',\n" +
                 "    'table-name' = 'user'\n" +
                 ")";
+        sourceDDL = sourceDDL.replace("${ip}", EnvProperties.ip())
+                .replace("${port}", EnvProperties.mysqlPort())
+                .replace("${username}", EnvProperties.mysqlUser())
+                .replace("${password}", EnvProperties.mysqlPassword());
+
+
         tableEnvironment.executeSql(sourceDDL);
 
         Table table = tableEnvironment.sqlQuery("select * from mysql_source");

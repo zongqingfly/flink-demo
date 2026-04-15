@@ -1,4 +1,4 @@
-package com.fly.flink;
+package com.fly.flink.source;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;

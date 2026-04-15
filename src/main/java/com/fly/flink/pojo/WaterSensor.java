@@ -1,4 +1,4 @@
-package com.fly.pojo;
+package com.fly.flink.pojo;
 
 import java.util.Objects;
 

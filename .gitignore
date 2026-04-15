@@ -83,4 +83,6 @@ Desktop.ini
 # IDE specific files
 *.swp
 *.swo
-*~
+
+# added by user
+env.properties
