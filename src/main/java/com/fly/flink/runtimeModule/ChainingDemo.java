@@ -1,4 +1,4 @@
-package com.fly.flink;
+package com.fly.flink.runtimeModule;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -15,6 +15,7 @@ public class ChainingDemo {
         env.disableOperatorChaining(); // attention 全局禁用算子链
 
         // 2. 从socket流中读取数据
+        // Tip: 在wsl上server监听：nc -lk 9999
         DataStreamSource<String> source = env.socketTextStream("localhost", 9999);
 
         // 3.1 切分
@@ -25,10 +26,10 @@ public class ChainingDemo {
                     }
                 })
                 .startNewChain() // attention 从此算子开始新链，指定 flatMap 与前面断开。
-                .returns(Types.STRING) // attention1 必须指定返回类型
+                .returns(Types.STRING) // attention 必须指定返回类型
                 .map(word -> Tuple2.of(word, 1))// 3.2 转换
 //                .disableChaining() // attention 禁止算子链
-                .returns(Types.TUPLE(Types.STRING, Types.INT))// attention[1] 必须指定返回类型
+                .returns(Types.TUPLE(Types.STRING, Types.INT))// attention 必须指定返回类型
                 .keyBy(tuple -> tuple.f0)// 3.3 分组
                 .sum(1)// 3.4 聚合
                 .print();

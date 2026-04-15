@@ -1,4 +1,4 @@
-package com.fly.flink;
+package com.fly.flink.runtimeModule;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -11,9 +11,10 @@ public class ParallelismDemo {
     public static void main(String[] args) throws Exception {
         // 1. 创建本地环境，webui访问： http://localhost:8081
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(new Configuration());
-        env.setParallelism(2); // 全局指定并行度
+        env.setParallelism(2); // attention 全局指定并行度
 
         // 2. 从socket流中读取数据
+        // Tip: 在wsl上server监听：nc -lk 9999
         DataStreamSource<String> source = env.socketTextStream("localhost", 9999);
 
         source.flatMap((FlatMapFunction<String, Tuple2<String, Integer>>) (in, out) -> {
@@ -33,8 +34,8 @@ public class ParallelismDemo {
         // 5. 执行
         env.execute();
 
-        /*
-        attention 算子优先级: 算子 > 代码env 全局设定 > 提交jar包指定参数 > flink-conf.yaml配置
+        /**
+         *attention 算子优先级: 算子 > env全局设定 > 提交jar时包指定参数 > flink-conf.yaml配置
          */
 
         env.close();
